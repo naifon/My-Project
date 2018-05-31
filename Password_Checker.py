@@ -17,8 +17,8 @@ def check(Password=""):
             symbol += 1
 
     if len(Password) <= 6:
-        return "This is a weak password  "
+        return "Short Password, it should be more than 6 characters"
     elif upper_case > 0 and lower_case > 0 and number > 0 and symbol > 0:
         return "Good"
     else:
-        return "Stil weak, try to use uppercase, lowercase and symbols"
+        return "Weak, you should use upper letters, lower letters, numbers and symbols"
