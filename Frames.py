@@ -17,7 +17,7 @@ import wx.xrc
 class mainFrame ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 851,754 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 851,610 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -31,6 +31,8 @@ class mainFrame ( wx.Frame ):
 		
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		bSizer1.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		wSizer23 = wx.WrapSizer( wx.HORIZONTAL )
 		
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -66,6 +68,20 @@ class mainFrame ( wx.Frame ):
 		
 		self.m_staticline8 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		bSizer2.Add( self.m_staticline8, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		wSizer23.Add( bSizer2, 1, wx.EXPAND, 5 )
+		
+		wSizer24 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		wSizer24.SetMinSize( wx.Size( 100,-1 ) ) 
+		self.m_staticline41 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		wSizer24.Add( self.m_staticline41, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		wSizer23.Add( wSizer24, 1, wx.EXPAND, 5 )
+		
+		bSizer55 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -121,18 +137,21 @@ class mainFrame ( wx.Frame ):
 		bSizer10.Add( self.btnTen1, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		
-		bSizer2.Add( bSizer10, 1, wx.EXPAND, 5 )
+		bSizer55.Add( bSizer10, 1, wx.EXPAND, 5 )
 		
 		
-		bSizer1.Add( bSizer2, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
-		
-		bSizer6 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.m_staticline4 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		bSizer6.Add( self.m_staticline4, 0, wx.EXPAND |wx.ALL, 5 )
+		wSizer23.Add( bSizer55, 0, wx.EXPAND|wx.ALIGN_RIGHT, 5 )
 		
 		
-		bSizer1.Add( bSizer6, 1, wx.EXPAND, 5 )
+		bSizer1.Add( wSizer23, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		wSizer11 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		self.m_staticline51 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		wSizer11.Add( self.m_staticline51, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		bSizer1.Add( wSizer11, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5 )
 		
 		wSizer1 = wx.WrapSizer( wx.HORIZONTAL )
 		
@@ -658,10 +677,15 @@ class arpSpoofingFrame ( wx.Frame ):
 		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.btnActionAttack = wx.Button( self, wx.ID_ANY, u"Attack", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnActionAttack, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer32.Add( self.btnActionAttack, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.btnStop = wx.Button( self, wx.ID_ANY, u"Stop", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.btnStop.Enable( False )
+		
+		bSizer32.Add( self.btnStop, 0, wx.ALL, 5 )
 		
 		
-		bSizer11.Add( bSizer32, 1, wx.EXPAND, 5 )
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -680,9 +704,17 @@ class arpSpoofingFrame ( wx.Frame ):
 		self.Layout()
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.btnStop.Bind( wx.EVT_BUTTON, self.btnActionStop )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def btnActionStop( self, event ):
+		event.Skip()
 	
 
 ###########################################################################
@@ -722,10 +754,10 @@ class webScannerFrame ( wx.Frame ):
 		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.btnScan = wx.Button( self, wx.ID_ANY, u"Scan", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnScan, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer32.Add( self.btnScan, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer11.Add( bSizer32, 1, wx.EXPAND, 5 )
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -782,10 +814,10 @@ class webNetworkScanFrame ( wx.Frame ):
 		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.btnScan = wx.Button( self, wx.ID_ANY, u"Scan", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnScan, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer32.Add( self.btnScan, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer11.Add( bSizer32, 0, wx.EXPAND, 5 )
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -839,13 +871,20 @@ class NMAPScanFrame ( wx.Frame ):
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		bSizer11.Add( self.m_staticline10, 0, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
-		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
+		wSizer2 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		self.m_staticText19 = wx.StaticText( self, wx.ID_ANY, u"IP Address     ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText19.Wrap( -1 )
+		wSizer2.Add( self.m_staticText19, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.inpIP = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
+		wSizer2.Add( self.inpIP, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.btnScan = wx.Button( self, wx.ID_ANY, u"Scan", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnScan, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		wSizer2.Add( self.btnScan, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer11.Add( bSizer32, 0, wx.EXPAND, 5 )
+		bSizer11.Add( wSizer2, 0, wx.EXPAND, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -908,25 +947,24 @@ class webScanFrame ( wx.Frame ):
 		self.inpURL = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
 		wSizer2.Add( self.inpURL, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.btnScan = wx.Button( self, wx.ID_ANY, u"Scan", wx.DefaultPosition, wx.DefaultSize, 0 )
+		wSizer2.Add( self.btnScan, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
 		
 		bSizer11.Add( wSizer2, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.btnScan = wx.Button( self, wx.ID_ANY, u"Scan", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnScan, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		
-		bSizer11.Add( bSizer32, 0, wx.EXPAND, 5 )
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.m_staticline22 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		bSizer14.Add( self.m_staticline22, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.lblResult = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.lblResult.Wrap( -1 )
-		bSizer14.Add( self.lblResult, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_LEFT|wx.ALL|wx.LEFT, 5 )
+		self.txtResult = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_WORDWRAP|wx.HSCROLL|wx.VSCROLL )
+		bSizer14.Add( self.txtResult, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		bSizer11.Add( bSizer14, 1, wx.EXPAND, 5 )
@@ -995,13 +1033,21 @@ class dataintegrtityFrame ( wx.Frame ):
 		
 		bSizer11.Add( wSizer21, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
 		
+		bSizer141 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_staticline221 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		bSizer141.Add( self.m_staticline221, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		bSizer11.Add( bSizer141, 0, wx.EXPAND, 5 )
+		
 		bSizer32 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.btnScan = wx.Button( self, wx.ID_ANY, u"Check", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer32.Add( self.btnScan, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer32.Add( self.btnScan, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer11.Add( bSizer32, 0, wx.EXPAND, 5 )
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -1060,8 +1106,13 @@ class PSFrame ( wx.Frame ):
 		self.btnAttack = wx.Button( self, wx.ID_ANY, u"Sniff", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer32.Add( self.btnAttack, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.btnStop = wx.Button( self, wx.ID_ANY, u"Stop", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.btnStop.Enable( False )
 		
-		bSizer11.Add( bSizer32, 0, wx.EXPAND, 5 )
+		bSizer32.Add( self.btnStop, 0, wx.ALL, 5 )
+		
+		
+		bSizer11.Add( bSizer32, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -1083,6 +1134,7 @@ class PSFrame ( wx.Frame ):
 		
 		# Connect Events
 		self.btnAttack.Bind( wx.EVT_BUTTON, self.btnActionPSAttack )
+		self.btnStop.Bind( wx.EVT_BUTTON, self.btnActionStop )
 	
 	def __del__( self ):
 		pass
@@ -1090,6 +1142,9 @@ class PSFrame ( wx.Frame ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def btnActionPSAttack( self, event ):
+		event.Skip()
+	
+	def btnActionStop( self, event ):
 		event.Skip()
 	
 
