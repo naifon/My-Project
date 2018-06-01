@@ -1,19 +1,12 @@
-# No duplicate characters in the password
-
 import random
 
 
 def generate(length, capitalLetters=True, smallLetters=True, numbers=True, specialCharacters=True, ):
-    # capitalLetters      = capitalLetters
-    # smallLetters        = True
-    # specialCharacters   = True
-    # numbers = True
-
     if length == None or length < 1:
         return
 
-    if not capitalLetters and not smallLetters and not numbers and specialCharacters:
-        return
+    if capitalLetters == False and smallLetters == False and numbers == False and specialCharacters == False:
+        return "No options"
 
     password_length = length
 
@@ -42,9 +35,7 @@ def generate(length, capitalLetters=True, smallLetters=True, numbers=True, speci
         if options[i]:
             dev += 1
 
-    # print(dev)
     el = password_length // dev
-    # print(el)
 
     extra = ""
 
@@ -62,5 +53,3 @@ def generate(length, capitalLetters=True, smallLetters=True, numbers=True, speci
     scrambled_pass = ''.join(password_1)
 
     return (scrambled_pass)
-
-# generate()

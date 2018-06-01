@@ -6,7 +6,10 @@ import signal
 import threading
 from netifaces import AF_INET
 
-
+try:
+    import arpreq
+except:
+    pass
 import atexit
 from scapy.all import *
 
