@@ -193,6 +193,7 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
         self.webScannerFrame.Show()
 
     def btnActionScan(self, event):
+
         url = self.webScannerFrame.inpURL.GetValue()
         self.Connect(-1, -1, EVT_RESULT_FIND_ADMIN_ID, self.on_find_admin_result)
         find_admin_thread = FindAdminThread(self, site=url)
@@ -356,7 +357,7 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
 
         re = DI(file, sha1)
 
-        self.dataintegrtityFrame.lblResult.SetLabel(str(re))
+        self.dataintegrtityFrame.txtResult.SetValue(str(re))
         self.dataintegrtityFrame.Layout()
 
     # ----------------------------------------------------------#

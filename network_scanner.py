@@ -5,7 +5,11 @@
 
 
 # import arpreq
-import arpreq
+try:
+    import arpreq
+except:
+    pass
+
 import atexit
 import ipaddress
 import logging

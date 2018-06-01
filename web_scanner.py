@@ -14,6 +14,11 @@ class WebScanner:
         pass
 
     def find_admin(self, url):
+        url = str(url).strip()
+
+        if not url.startswith("https://") and not url.startswith("http://"):
+            url = "http://" + url
+
         futures = []
         if self._check_link(url) is None:
             return futures

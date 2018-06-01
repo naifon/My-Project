@@ -6,7 +6,6 @@ import signal
 import threading
 from netifaces import AF_INET
 
-import arpreq
 
 import atexit
 from scapy.all import *
