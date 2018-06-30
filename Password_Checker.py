@@ -1,5 +1,3 @@
-import re
-
 def check(Password=""):
     upper_case = 0
     lower_case = 0
@@ -16,8 +14,8 @@ def check(Password=""):
         else:
             symbol += 1
 
-    if len(Password) <= 6:
-        return "Short Password, it should be more than 6 characters"
+    if len(Password) < 10:
+        return "Short Password, it should be more than 10 characters"
     elif upper_case > 0 and lower_case > 0 and number > 0 and symbol > 0:
         return "Good"
     else:

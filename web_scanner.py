@@ -14,11 +14,6 @@ class WebScanner:
         pass
 
     def find_admin(self, url):
-        url = str(url).strip()
-
-        if not url.startswith("https://") and not url.startswith("http://"):
-            url = "http://" + url
-
         futures = []
         if self._check_link(url) is None:
             return futures
@@ -32,8 +27,10 @@ class WebScanner:
             for future in futures:
                 result = future.result()
                 if result is not None:
+                    if str(result)[-1] =="/":
+                        result=str(result)[:-1]
                     available_links.append(result)
-            return available_links
+            return list(set(available_links))
 
     def whois(self, url):
         re = whois.whois(url)
@@ -59,6 +56,7 @@ class WebScanner:
             # self.logger.exception("URLError")
             return
         else:
+            print(req_link)
             return req_link
 
     @staticmethod

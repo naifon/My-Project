@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Date : 2018-05-04 23:58
-# @AUTHOR : thang
 
-
-# import arpreq
 try:
     import arpreq
 except:
@@ -46,11 +40,6 @@ class NetworkScanner:
         pass
 
     def scan_ports(self, host):
-        """
-        SCan all ports of a specific host
-        :param host: hostname
-        :return: list of futures
-        """
         self.logger.debug("Scanning port for host " + host)
         if self.ping_host(host) is None:
             return
@@ -69,12 +58,6 @@ class NetworkScanner:
             return open_ports
 
     def scan_ports_async(self, host, callback=None):
-        """
-        Callback implementation of scan_ports
-        :param host: hostname
-        :param callback: on_port_open(port)
-        :return: None
-        """
         self.logger.debug("Scanning port for host " + host)
         if self.ping_host(host) is None:
             return
@@ -135,10 +118,6 @@ class NetworkScanner:
                     callback((result, arpreq.arpreq(result)))
 
     def netmask_to_cidr(self, netmask):
-        """
-        :param netmask: netmask ip addr (eg: 255.255.255.0)
-        :return: equivalent cidr number to given netmask ip (eg: 24)
-        """
         return sum([bin(int(x)).count('1') for x in netmask.split('.')])
 
     def get_current_network(self):
@@ -152,7 +131,3 @@ class NetworkScanner:
         if_addr = ipaddress.IPv4Interface(address + '/' + str(self.netmask_to_cidr(net_mask)))
         network = if_addr.network
         return network
-
-# res = NetworkScanner().ping_sweep_async()
-#
-# print(res)

@@ -2,8 +2,8 @@ import random
 
 
 def generate(length, capitalLetters=True, smallLetters=True, numbers=True, specialCharacters=True, ):
-    if length == None or length < 1:
-        return
+    if length is None or length < 1:
+        return "Bad length"
 
     if capitalLetters == False and smallLetters == False and numbers == False and specialCharacters == False:
         return "No options"
@@ -26,7 +26,7 @@ def generate(length, capitalLetters=True, smallLetters=True, numbers=True, speci
     max_length = len(SL) + len(CL) + len(NO) + len(SC)
 
     if password_length > max_length:
-        print("Bad length, must be less than:" + str(max_length))
+        print("Bad length, must be less than: " + str(max_length))
         return
 
     dev = 0
@@ -39,7 +39,7 @@ def generate(length, capitalLetters=True, smallLetters=True, numbers=True, speci
 
     extra = ""
 
-    if ((dev * el) != password_length):
+    if (dev * el) != password_length:
         extra = "".join(random.sample(CL, password_length - (el * dev)))
 
     s = ""
@@ -52,4 +52,4 @@ def generate(length, capitalLetters=True, smallLetters=True, numbers=True, speci
     random.shuffle(password_1)
     scrambled_pass = ''.join(password_1)
 
-    return (scrambled_pass)
+    return scrambled_pass

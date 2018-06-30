@@ -1,54 +1,56 @@
-import logging.config
-from threading import Thread
-
 import psutil
 import wx
 import yaml
 from scapy.all import *
+import logging.config
 
 from Frames import NMAPScanFrame
 from Frames import PSFrame
-from Frames import arpSpoofingFrame
 from Frames import dataintegrtityFrame
 from Frames import encryptDecryptFrame
 from Frames import mainFrame
 from Frames import passwordCheckerFrame
 from Frames import passwordGenFrame
-from Frames import webNetworkScanFrame
 from Frames import webScanFrame
 from Frames import webScannerFrame
 from Frames import zipFrame
 from Password_Checker import check as passwordCheck
 from Password_Generator import generate as passwordGenerate
-from arp_spoofing import ArpSpoofing
 from brute_force_attack import ZipPwdCracker
 from data_integrity import DI
 from encrypt_decrypt import main as AES
 from network_scanner import NetworkScanner
 from web_scanner import WebScanner
 
+from network_scanner import NetworkScanner
+
+
+from Frames import arpSpoofingFrame
+from arp_spoofing import ArpSpoofing
+from Frames import webNetworkScanFrame
+
 EVT_RESULT_NET_SCAN_ID = wx.NewId()
 EVT_RESULT_PORT_SCAN_ID = wx.NewId()
 EVT_RESULT_FIND_ADMIN_ID = wx.NewId()
+EVT_RESULT_ZIP_CRACKER_ID = wx.NewId()
 
 
-class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, zipFrame, webScannerFrame,
-          webNetworkScanFrame, NMAPScanFrame, PSFrame, webScanFrame, dataintegrtityFrame):
+class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, zipFrame, webScannerFrame, webScanFrame, PSFrame,
+          NMAPScanFrame,arpSpoofingFrame):
 
     def __init__(self, parent):
         mainFrame.__init__(self, parent)
         self.passwordCheckerFrame = None
         self.passwordGenFrame = None
-        self.encryptDecryptFrame = None
-        self.arpSpoofingFrame = None
         self.zipFrame = None
         self.webScannerFrame = None
-        self.webNetworkScanFrame = None
-        self.NMAPScanFrame = None
-        self.PSFrame = None
         self.webScanFrame = None
-        self.dataintegrtityFrame = None
+        self.webScanFrame = None
+        self.NMAPScanFrame = None
         self.arpSpoofingThread = None
+        self.PSFrame = None
+        self.webNetworkScanFrame = None
+
         with open("conf/logging.yml", 'r') as config_file:
             config_dict = yaml.load(config_file)
         logging.config.dictConfig(config_dict)
@@ -90,6 +92,105 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
         self.passwordGenFrame.Bind(wx.EVT_BUTTON, self.btnActionPasswordGenerate)
         self.passwordGenFrame.Show()
         pass
+
+    # ----------------------------------------------------------#
+
+    def btnOpenZIP(self, event):
+        self.zipFrame = zipFrame(None)
+        self.zipFrame.btnAttack.Bind(wx.EVT_BUTTON, self.btnActionZIPAttach)
+        self.zipFrame.btnAttack2.Bind(wx.EVT_BUTTON, self.btnActionBruteForceAttach)
+        self.zipFrame.Show()
+
+    def btnActionZIPAttach(self, event):
+        zipFile = self.zipFrame.pikZiipFile.GetPath()
+        dictFile = self.zipFrame.pikDictFile.GetPath()
+        passLen = self.zipFrame.inpPassLen.GetValue() or 4
+
+        if str(zipFile).strip()=="":
+            self.zipFrame.lblResult.SetLabel("Please choose a zip file")
+            self.zipFrame.Layout()
+        elif str(dictFile).strip()=="":
+            self.zipFrame.lblResult.SetLabel("Please choose a dictionary file")
+            self.zipFrame.Layout()
+        else:
+            self.zipFrame.lblResult.SetLabel("Please wait...")
+            self.zipFrame.Layout()
+
+            re = ZipPwdCracker().dictionary_attack(zipFile, dictFile, int(passLen))
+            self.zipFrame.lblResult.SetLabel(re)
+            self.zipFrame.Layout()
+
+    def btnActionBruteForceAttach(self, event):
+        zipFile = self.zipFrame.pikZiipFile.GetPath()
+        dictFile = self.zipFrame.pikDictFile.GetPath()
+
+        passLen = self.zipFrame.inpPassLen.GetValue() or 4
+
+
+        if str(zipFile).strip()=="":
+            self.zipFrame.lblResult.SetLabel("Please choose a zip file")
+            self.zipFrame.Layout()
+        else:
+            self.zipFrame.lblResult.SetLabel("Please wait...")
+            self.zipFrame.Layout()
+
+            self.Connect(-1, -1, EVT_RESULT_ZIP_CRACKER_ID, self.on_zip_cracker_result)
+            zip_cracker_thread = ZipCrackerThread(self, zipFile, passLen)
+            zip_cracker_thread.start()
+
+    def on_zip_cracker_result(self, event):
+        passwd = event.data
+        self.zipFrame.lblResult.SetLabel(str(passwd))
+        self.zipFrame.Layout()
+
+    # ----------------------------------------------------------#
+
+    def btnOpenAdmin(self, event):
+        self.webScannerFrame = webScannerFrame(None)
+        self.webScannerFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionScan)
+        self.webScannerFrame.Show()
+
+    def btnActionScan(self, event):
+        url = self.webScannerFrame.inpURL.GetValue()
+
+        if not "http://" in url and not "https://" in url:
+            url = "http://" + url
+
+        self.Connect(-1, -1, EVT_RESULT_FIND_ADMIN_ID, self.on_find_admin_result)
+        self.webScannerFrame.lblResult.SetLabel("Scanning, please wait...")
+        self.webScannerFrame.Layout()
+        find_admin_thread = FindAdminThread(self, site=url)
+        find_admin_thread.start()
+
+    def on_find_admin_result(self, event):
+        links = event.data
+        allLinks = ""
+        if not links or len(links) < 1:
+            allLinks = "No result"
+        else:
+            for link in links:
+                allLinks += link + "\n"
+
+        self.webScannerFrame.lblResult.SetLabel(str(allLinks))
+        self.webScannerFrame.Layout()
+
+    # ----------------------------------------------------------#
+
+    def btnOpenWebScan(self, event):
+        self.webScanFrame = webScanFrame(None)
+        self.webScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionWebScan)
+        self.webScanFrame.Show()
+
+    def btnActionWebScan(self, event):
+
+        url = self.webScanFrame.inpURL.GetValue()
+        info = WebScanner().whois(url)
+
+        if not "http://" in url and not "https://" in url:
+            url = "http://" + url
+        # self.webScanFrame.lblResult.SetLabel(str(info))
+        self.webScanFrame.txtResult.SetValue(str(info))
+        self.webScanFrame.Layout()
 
     # ----------------------------------------------------------#
     def btnActionDecrypt(self, event):
@@ -160,58 +261,45 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
         pass
 
     # ----------------------------------------------------------#
+    def btnOpenDIFrame(self, event):
+        self.dataintegrtityFrame = dataintegrtityFrame(None)
+        self.dataintegrtityFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionDIScan)
+        self.dataintegrtityFrame.Show()
 
-    def btnOpenZIP(self, event):
-        self.zipFrame = zipFrame(None)
-        self.zipFrame.btnAttack.Bind(wx.EVT_BUTTON, self.btnActionZIPAttach)
-        self.zipFrame.btnAttack2.Bind(wx.EVT_BUTTON, self.btnActionBruteForceAttach)
-        self.zipFrame.Show()
+    def btnActionDIScan(self, event):
 
-    def btnActionZIPAttach(self, event):
-        zipFile = self.zipFrame.pikZiipFile.GetPath()
-        dictFile = self.zipFrame.pikDictFile.GetPath()
+        sha1 = self.dataintegrtityFrame.inpURL.GetValue()
+        file = self.dataintegrtityFrame.pikFile.GetPath()
 
-        re = ZipPwdCracker().dictionary_attack(zipFile, dictFile)
-        self.zipFrame.lblResult.SetLabel(re)
-        self.zipFrame.Layout()
+        re = DI(file, sha1)
 
-    def btnActionBruteForceAttach(self, event):
-        zipFile = self.zipFrame.pikZiipFile.GetPath()
-        dictFile = self.zipFrame.pikDictFile.GetPath()
-
-        passLen = self.zipFrame.inpPassLen.GetValue() or 4
-
-        re = ZipPwdCracker().brute_force_attack(zipFile, int(passLen))
-        self.zipFrame.lblResult.SetLabel(str(re))
-        self.zipFrame.Layout()
+        self.dataintegrtityFrame.lblResult.SetLabel(str(re))
+        self.dataintegrtityFrame.Layout()
 
     # ----------------------------------------------------------#
 
-    def btnOpenAdmin(self, event):
-        self.webScannerFrame = webScannerFrame(None)
-        self.webScannerFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionScan)
-        self.webScannerFrame.Show()
+    def btnOpenNMAPScan(self, event):
+        self.NMAPScanFrame = NMAPScanFrame(None)
+        self.NMAPScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionNMAPScan)
+        self.NMAPScanFrame.Show()
 
-    def btnActionScan(self, event):
+    def btnActionNMAPScan(self, event):
+        # self.NMAPScanFrame.lblResult.SetLabel("Please wait..")
+        # self.NMAPScanFrame.Layout()
 
-        url = self.webScannerFrame.inpURL.GetValue()
-        self.Connect(-1, -1, EVT_RESULT_FIND_ADMIN_ID, self.on_find_admin_result)
-        find_admin_thread = FindAdminThread(self, site=url)
-        find_admin_thread.start()
+        self.Connect(-1, -1, EVT_RESULT_PORT_SCAN_ID, self.on_port_scan_result)
+        hostname = self.NMAPScanFrame.inpIP.GetValue()
+        port_scan_thread = PortScanThread(self, host=hostname)
+        port_scan_thread.start()
 
-    def on_find_admin_result(self, event):
-        links = event.data
-        allLinks = ""
-        if not links or len(links) < 1:
-            allLinks = "No result"
-        else:
-            for link in links:
-                allLinks += link + "\n"
+    def on_port_scan_result(self, event):
+        current = self.NMAPScanFrame.lblResult.GetLabel()
 
-        self.webScannerFrame.lblResult.SetLabel(str(allLinks))
-        self.webScannerFrame.Layout()
+        self.NMAPScanFrame.lblResult.SetLabel(current + "\n" + str(event.data))
+        self.NMAPScanFrame.Layout()
 
-    # ----------------------------------------------------------#
+
+ # ----------------------------------------------------------#
 
     def btnOpenARP(self, event):
         self.arpSpoofingFrame = arpSpoofingFrame(None)
@@ -236,54 +324,8 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
         self.arpSpoofingFrame.btnActionAttack.Enable()
         self.arpSpoofingThread.stop()
 
-    # ----------------------------------------------------------#
 
-    def btnOpenNetworkScan(self, event):
-        self.webNetworkScanFrame = webNetworkScanFrame(None)
-        self.webNetworkScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionNetworkScan)
-        self.webNetworkScanFrame.Show()
-
-    def btnActionNetworkScan(self, event):
-        self.Connect(-1, -1, EVT_RESULT_NET_SCAN_ID, self.on_net_scan_result)
-        netScanThread = NetScanThread(self)
-        netScanThread.start()
-
-    def on_net_scan_result(self, event):
-        """Show Result status."""
-        if event.data is None:
-            # Thread aborted (using our convention of None return)
-            self.webNetworkScanFrame.lblResult.SetLabel('Computation aborted')
-        else:
-            # Process results here
-            current = self.webNetworkScanFrame.lblResult.GetLabel()
-            self.webNetworkScanFrame.lblResult.SetLabel(
-                current + "\nIP: " + str(event.data[0]) + "\tMAC: " + str(event.data[1]))
-            self.webNetworkScanFrame.Layout()
-
-    # Thread class that executes processing
-    # ----------------------------------------------------------#
-
-    def btnOpenNMAPScan(self, event):
-        self.NMAPScanFrame = NMAPScanFrame(None)
-        self.NMAPScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionNMAPScan)
-        self.NMAPScanFrame.Show()
-
-    def btnActionNMAPScan(self, event):
-        # self.NMAPScanFrame.lblResult.SetLabel("Please wait..")
-        # self.NMAPScanFrame.Layout()
-
-        self.Connect(-1, -1, EVT_RESULT_PORT_SCAN_ID, self.on_port_scan_result)
-        hostname = self.NMAPScanFrame.inpIP.GetValue()
-        port_scan_thread = PortScanThread(self, host=hostname)
-        port_scan_thread.start()
-
-    def on_port_scan_result(self, event):
-        current = self.NMAPScanFrame.lblResult.GetLabel()
-
-        self.NMAPScanFrame.lblResult.SetLabel(current + "\n" + str(event.data))
-        self.NMAPScanFrame.Layout()
-
-    # ----------------------------------------------------------#
+   # ----------------------------------------------------------#
     def btnOpenPSFrame(self, event):
         self.PSFrame = PSFrame(None)
         self.PSFrame.btnAttack.Bind(wx.EVT_BUTTON, self.btnActionPSAttack)
@@ -327,64 +369,60 @@ class GUI(mainFrame, passwordCheckerFrame, passwordGenFrame, arpSpoofingFrame, z
 
     # ----------------------------------------------------------#
 
-    def btnOpenWebScan(self, event):
-        self.webScanFrame = webScanFrame(None)
-        self.webScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionWebScan)
-        self.webScanFrame.Show()
+    def btnOpenNetworkScan(self, event):
+        self.webNetworkScanFrame = webNetworkScanFrame(None)
+        self.webNetworkScanFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionNetworkScan)
+        self.webNetworkScanFrame.Show()
 
-    def btnActionWebScan(self, event):
+    def btnActionNetworkScan(self, event):
+        print("scan")
+        self.Connect(-1, -1, EVT_RESULT_NET_SCAN_ID, self.on_net_scan_result)
+        netScanThread = NetScanThread(self)
+        netScanThread.start()
 
-        url = self.webScanFrame.inpURL.GetValue()
-        info = WebScanner().whois(url)
-
-        if not "http://" in url and not "https://" in url:
-            url = "http://" + url
-        # self.webScanFrame.lblResult.SetLabel(str(info))
-        self.webScanFrame.txtResult.SetValue(str(info))
-        self.webScanFrame.Layout()
-
-    # ----------------------------------------------------------#
-
-    def btnOpenDIFrame(self, event):
-        self.dataintegrtityFrame = dataintegrtityFrame(None)
-        self.dataintegrtityFrame.btnScan.Bind(wx.EVT_BUTTON, self.btnActionDIScan)
-        self.dataintegrtityFrame.Show()
-
-    def btnActionDIScan(self, event):
-
-        sha1 = self.dataintegrtityFrame.inpURL.GetValue()
-        file = self.dataintegrtityFrame.pikFile.GetPath()
-
-        re = DI(file, sha1)
-
-        self.dataintegrtityFrame.txtResult.SetValue(str(re))
-        self.dataintegrtityFrame.Layout()
-
-    # ----------------------------------------------------------#
-
+    def on_net_scan_result(self, event):
+        """Show Result status."""
+        if event.data is None:
+            # Thread aborted (using our convention of None return)
+            self.webNetworkScanFrame.lblResult.SetLabel('Computation aborted')
+        else:
+            # Process results here
+            current = self.webNetworkScanFrame.lblResult.GetLabel()
+            self.webNetworkScanFrame.lblResult.SetLabel(
+                current + "\nIP: " + str(event.data[0]) + "\tMAC: " + str(event.data[1]))
+            self.webNetworkScanFrame.Layout()
 
 class ResultEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data."""
-
     def __init__(self, even_id, data):
-        """Init Result Event."""
         wx.PyEvent.__init__(self)
         self.SetEventType(even_id)
         self.data = data
 
 
-class NetScanThread(Thread):
-    def __init__(self, notify_window):
+class FindAdminThread(Thread):
+    def __init__(self, notify_window, site):
         Thread.__init__(self)
         self._notify_window = notify_window
-        self._want_abort = False
+        self._site = site
 
     def run(self):
-        NetworkScanner().ping_sweep_async(callback=self.on_host_online)
-        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_NET_SCAN_ID, "DONE"))
+        links = WebScanner().find_admin(self._site)
+        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_FIND_ADMIN_ID, links))
 
-    def on_host_online(self, host):
-        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_NET_SCAN_ID, host))
+
+class ZipCrackerThread(Thread):
+    def __init__(self, notify_window, zipFile, passLen):
+        Thread.__init__(self)
+        self._notify_window = notify_window
+        self._zipFile = zipFile
+        self._passLen = passLen
+
+    def run(self):
+        re = ZipPwdCracker().brute_force_attack(self._zipFile, int(self._passLen),callback=self.on_port_open)
+        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_ZIP_CRACKER_ID, re))
+
+    def on_port_open(self, password):
+        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_ZIP_CRACKER_ID, password))
 
 
 class PortScanThread(Thread):
@@ -401,16 +439,19 @@ class PortScanThread(Thread):
     def on_port_open(self, port):
         wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_PORT_SCAN_ID, port))
 
-
-class FindAdminThread(Thread):
-    def __init__(self, notify_window, site):
+class NetScanThread(Thread):
+    print("th")
+    def __init__(self, notify_window):
         Thread.__init__(self)
         self._notify_window = notify_window
-        self._site = site
+        self._want_abort = False
 
     def run(self):
-        links = WebScanner().find_admin(self._site)
-        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_FIND_ADMIN_ID, links))
+        NetworkScanner().ping_sweep_async(callback=self.on_host_online)
+        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_NET_SCAN_ID, "DONE"))
+
+    def on_host_online(self, host):
+        wx.PostEvent(self._notify_window, ResultEvent(EVT_RESULT_NET_SCAN_ID, host))
 
 
 app = wx.App()
